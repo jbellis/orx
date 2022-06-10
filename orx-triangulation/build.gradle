@@ -8,8 +8,7 @@ sourceSets {
     }
 }
 
-def useSnapshot = false
-def delaunatorVersion = (useSnapshot) ? "0.4.0-SNAPSHOT" : "1.0.2"
+def delaunatorVersion = "1.0.2"
 
 dependencies {
     api project(":orx-noise")
