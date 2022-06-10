@@ -82,6 +82,7 @@ allprojects {
     group 'org.openrndr.extra'
     repositories {
         mavenCentral()
+        maven { url "https://jitpack.io" }
         if (openrndrUseSnapshot) {
             mavenLocal()
         }

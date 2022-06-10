@@ -36,7 +36,7 @@ class AlphaShape(val points: List<Vector2>) {
     private fun createBase(alpha: Double): List<Pair<Int, Int>> {
         if (delaunay.points.size < 9) return emptyList()
 
-        val triangles = delaunay.triangles
+        val triangles = delaunay._triangles
         var allEdges = mutableSetOf<Pair<Int, Int>>()
         var perimeterEdges = mutableSetOf<Pair<Int, Int>>()
         for (i in triangles.indices step 3) {

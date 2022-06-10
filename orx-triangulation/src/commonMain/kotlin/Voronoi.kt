@@ -36,8 +36,7 @@ THIS SOFTWARE.
  * @author Ricardo Matias
  */
 class Voronoi(val delaunay: Delaunay, val bounds: Rectangle) {
-    private val _circumcenters = DoubleArray(delaunay.points.size * 2)
-    lateinit var circumcenters: DoubleArray
+    private lateinit var _circumcenters: DoubleArray
     private set
 
     val vectors = DoubleArray(delaunay.points.size * 2)
@@ -53,10 +52,10 @@ class Voronoi(val delaunay: Delaunay, val bounds: Rectangle) {
 
     fun init() {
         val points = delaunay.points
-        val triangles = delaunay.triangles
-        val hull = delaunay.hull
+        val triangles = delaunay._triangles
+        val hull = delaunay._hull
 
-        circumcenters = _circumcenters.copyOf(delaunay.triangles.size / 3 * 2)
+        _circumcenters = DoubleArray(delaunay._triangles.size / 3 * 2)
 
         // Compute circumcenters
         var i = 0
@@ -102,8 +101,8 @@ class Voronoi(val delaunay: Delaunay, val bounds: Rectangle) {
                 }
             }
 
-            circumcenters[j] = x
-            circumcenters[j + 1] = y
+            _circumcenters[j] = x
+            _circumcenters[j + 1] = y
 
             i += 3
             j += 2
@@ -174,7 +173,7 @@ class Voronoi(val delaunay: Delaunay, val bounds: Rectangle) {
         return ShapeContour.fromPoints(polygon, true)
     }
 
-    fun circumcenters() = circumcenters.toList().windowed(2, 2).map {
+    fun circumcenters() = _circumcenters.toList().windowed(2, 2).map {
         Vector2(it[0], it[1])
     }
 
@@ -184,8 +183,8 @@ class Voronoi(val delaunay: Delaunay, val bounds: Rectangle) {
 
     private fun cell(i: Int): MutableList<Double>? {
         val inedges = delaunay.inedges
-        val halfedges = delaunay.halfedges
-        val triangles = delaunay.triangles
+        val halfedges = delaunay._halfedges
+        val triangles = delaunay._triangles
 
         val e0 = inedges[i]
 
@@ -196,10 +195,10 @@ class Voronoi(val delaunay: Delaunay, val bounds: Rectangle) {
         var e = e0
 
         do {
-            val t = Math.floorDiv(e, 3) // triangle of edge
+            val t = e.floorDiv(3) // triangle of edge
 
-            points.add(circumcenters[t * 2])
-            points.add(circumcenters[t * 2 + 1])
+            points.add(_circumcenters[t * 2])
+            points.add(_circumcenters[t * 2 + 1])
 
             e = if (e % 3 == 2) e - 2 else e + 1 // next half edge
 
@@ -213,7 +212,7 @@ class Voronoi(val delaunay: Delaunay, val bounds: Rectangle) {
 
     private fun clip(i: Int): List<Double>? {
         // degenerate case (1 valid point: return the box)
-        if (i == 0 && delaunay.hull.size == 1) {
+        if (i == 0 && delaunay._hull.size == 1) {
             return listOf(bounds.xmax, bounds.ymin, bounds.xmax, bounds.ymax, bounds.xmin, bounds.ymax, bounds.xmin, bounds.ymin)
         }
 

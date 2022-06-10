@@ -62,9 +62,10 @@ class Delaunay(val points: DoubleArray) {
     val inedges = IntArray(points.size / 2)
     private val hullIndex = IntArray(points.size / 2)
 
-    var halfedges = delaunator.halfedges
-    var hull = delaunator.hull
-    var triangles = delaunator.triangles
+    // these should probably be marked internal, but at least one consumer is using them directly
+    var _halfedges = delaunator.halfedges
+    var _hull = delaunator.hull
+    var _triangles = delaunator.triangles
 
     init {
         init()
@@ -76,9 +77,9 @@ class Delaunay(val points: DoubleArray) {
     }
 
     fun init() {
-        halfedges = delaunator.halfedges
-        hull = delaunator.hull
-        triangles = delaunator.triangles
+        _halfedges = delaunator.halfedges
+        _hull = delaunator.hull
+        _triangles = delaunator.triangles
 
         inedges.fill(-1)
         hullIndex.fill(-1)
@@ -86,35 +87,35 @@ class Delaunay(val points: DoubleArray) {
         // Compute an index from each point to an (arbitrary) incoming halfedge
         // Used to give the first neighbor of each point for this reason,
         // on the hull we give priority to exterior halfedges
-        for (e in halfedges.indices) {
-            val p = triangles[nextHalfedge(e)]
+        for (e in _halfedges.indices) {
+            val p = _triangles[nextHalfedge(e)]
 
-            if (halfedges[e] == -1 || inedges[p] == -1) inedges[p] = e
+            if (_halfedges[e] == -1 || inedges[p] == -1) inedges[p] = e
         }
 
-        for (i in hull.indices) {
-            hullIndex[hull[i]] = i
+        for (i in _hull.indices) {
+            hullIndex[_hull[i]] = i
         }
 
         // degenerate case: 1 or 2 (distinct) points
-        if (hull.size in 1..2) {
-            triangles = IntArray(3) { -1 }
-            halfedges = IntArray(3) { -1 }
-            triangles[0] = hull[0]
-            triangles[1] = hull[1]
-            triangles[2] = hull[1]
-            inedges[hull[0]] = 1
-            if (hull.size == 2) inedges[hull[1]] = 0
+        if (_hull.size in 1..2) {
+            _triangles = IntArray(3) { -1 }
+            _halfedges = IntArray(3) { -1 }
+            _triangles[0] = _hull[0]
+            _triangles[1] = _hull[1]
+            _triangles[2] = _hull[1]
+            inedges[_hull[0]] = 1
+            if (_hull.size == 2) inedges[_hull[1]] = 0
         }
     }
 
     fun triangles(): List<Triangle> {
         val list = mutableListOf<Triangle>()
 
-        for (i in triangles.indices step 3 ) {
-            val t0 = triangles[i] * 2
-            val t1 = triangles[i + 1] * 2
-            val t2 = triangles[i + 2] * 2
+        for (i in _triangles.indices step 3 ) {
+            val t0 = _triangles[i] * 2
+            val t1 = _triangles[i + 1] * 2
+            val t2 = _triangles[i + 2] * 2
 
             val p1 = Vector2(points[t0], points[t0 + 1])
             val p2 = Vector2(points[t1], points[t1 + 1])
@@ -129,12 +130,12 @@ class Delaunay(val points: DoubleArray) {
 
     // Inner edges of the delaunay triangulation (without hull)
     fun halfedges() = contours {
-        for (i in halfedges.indices) {
-            val j = halfedges[i]
+        for (i in _halfedges.indices) {
+            val j = _halfedges[i]
 
             if (j < i) continue
-            val ti = triangles[i] * 2
-            val tj = triangles[j] * 2
+            val ti = _triangles[i] * 2
+            val tj = _triangles[j] * 2
 
             moveTo(points[ti], points[ti + 1])
             lineTo(points[tj], points[tj + 1])
@@ -142,7 +143,7 @@ class Delaunay(val points: DoubleArray) {
     }
 
     fun hull() = contour {
-        for (h in hull) {
+        for (h in _hull) {
             moveOrLineTo(points[2 * h], points[2 * h + 1])
         }
         close()
@@ -170,7 +171,7 @@ class Delaunay(val points: DoubleArray) {
         val e0 = inedges[i]
         var e = e0
         do {
-            val t = triangles[e]
+            val t = _triangles[e]
             val dt = (x - points[t * 2]).pow(2) + (y - points[t * 2 + 1]).pow(2)
 
             if (dt < dc) {
@@ -180,12 +181,12 @@ class Delaunay(val points: DoubleArray) {
 
             e = nextHalfedge(e)
 
-            if (triangles[e] != i) break // bad triangulation
+            if (_triangles[e] != i) break // bad triangulation
 
-            e = halfedges[e]
+            e = _halfedges[e]
 
             if (e == -1) {
-                e = hull[(hullIndex[i] + 1) % hull.size]
+                e = _hull[(hullIndex[i] + 1) % _hull.size]
                 if (e != t) {
                     if ((x - points[e * 2]).pow(2) + (y - points[e * 2 + 1]).pow(2) < dc) return e
                 }

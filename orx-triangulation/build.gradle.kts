@@ -13,7 +13,7 @@ val kluentVersion: String by rootProject.extra
 val openrndrVersion: String by rootProject.extra
 val openrndrOS: String by rootProject.extra
 val spekVersion: String by rootProject.extra
-val delaunatorVersion = "1.0.2"
+val delaunatorVersion = "1.0.3.3"
 
 kotlin {
     jvm {
@@ -48,7 +48,7 @@ kotlin {
         @Suppress("UNUSED_VARIABLE")
         val commonMain by getting {
             dependencies {
-                implementation("com.github.ricardomatias:delaunator:$delaunatorVersion")
+                implementation("com.github.jbellis:delaunator:$delaunatorVersion")
                 implementation("org.openrndr:openrndr-shape:$openrndrVersion")
             }
         }
