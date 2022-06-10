@@ -59,18 +59,13 @@ kotlin {
                 implementation(project(":orx-parameters"))
                 implementation(project(":orx-shader-phrases"))
                 implementation(project(":orx-color"))
+                implementation(project(":orx-triangulation"))
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinxSerializationVersion")
                 implementation("org.openrndr:openrndr-application:$openrndrVersion")
                 implementation("org.openrndr:openrndr-draw:$openrndrVersion")
                 implementation("org.openrndr:openrndr-filter:$openrndrVersion")
                 implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion")
                 implementation("io.github.microutils:kotlin-logging:$kotlinLoggingVersion")
-            }
-        }
-        @Suppress("UNUSED_VARIABLE")
-        val jvmMain by getting {
-            dependencies {
-                implementation(project(":orx-triangulation"))
             }
         }
         @Suppress("UNUSED_VARIABLE")
